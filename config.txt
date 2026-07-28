@@ -1,0 +1,8 @@
+# Default configuration file
+
+width = 50
+height = 50
+entry = 5, 6
+exit = 40, 45
+output_file = maze_output.txt
+perfect = True
