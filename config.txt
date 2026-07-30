@@ -1,8 +1,12 @@
-# Default configuration file
+# Default configuration file for A-Maze-ing
+# Lines starting with '#' are comments and are ignored.
 
-width = 50
-height = 50
-entry = 5, 6
-exit = 40, 45
-output_file = maze_output.txt
-perfect = True
+WIDTH=10
+HEIGHT=8
+ENTRY=0,0
+EXIT=9,7
+OUTPUT_FILE=maze.txt
+PERFECT=True
+
+# Optional key: fix the random generator to get a reproducible maze.
+SEED=42
