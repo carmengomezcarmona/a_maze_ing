@@ -6,7 +6,7 @@ Los apartados que describen el proyecto es:
 - Interfaz Visual (por terminal o por otros)
 
 ## Reparto (por hacer)
-### login: Bloque Motor
+### gapostig: Bloque Motor
 genera el laberinto, lo valida, lo resuelve, y se empaqueta como librería pip reutilizable.
 
 | Tarea                             | Detalle                                                                                                                                               |
@@ -24,7 +24,7 @@ genera el laberinto, lo valida, lo resuelve, y se empaqueta como librería pip r
 | Docstrings + type hints           | PEP257 + typing, para pasar mypy                                                                                                                      |
 | Tests unitarios                   | grid, algoritmos, validador, solver                                                                                                                   |
 
-### login: Bloque App
+### carmgome: Bloque App
 parsea la config, llama al motor, escribe el fichero de salida en formato hexadecimal, y muestra la visualización interactiva.
 
 | Tarea                             | Detalle                                                                                                                                                     |
