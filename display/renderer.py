@@ -129,13 +129,22 @@ def show_cell(generator: MazeGenerator, x: int, y: int) -> None:
 
 
 def show_menu() -> str:
-    """Display the menu and return the user's choice."""
-    print("\n=== A-Maze-ing ===")
-    print("1. Regenerate maze")
-    print("2. Show/hide path")
-    print("3. Rotate colors")
-    print("4. Exit")
-    return input("Choose an option: ")
+    """Display the interactive menu with colored options."""
+    frame = PATH_COLOR
+    title = ENTRY_COLOR
+    print(f"\n{frame}+--------------------------------+{RESET}")
+    print(f"{frame}| {title}       A-Maze-ing        {frame}|{RESET}")
+    print(f"{frame}+--------------------------------+{RESET}")
+    option_1 = f"{frame}| {COLORS[0]}1. Regenerate maze"
+    option_2 = f"{frame}| {COLORS[1]}2. Show/hide path"
+    option_3 = f"{frame}| {COLORS[2]}3. Rotate colors"
+    option_4 = f"{frame}| {COLORS[3]}4. Exit"
+    print(f"{option_1}{frame}             |{RESET}")
+    print(f"{option_2}{frame}              |{RESET}")
+    print(f"{option_3}{frame}               |{RESET}")
+    print(f"{option_4}{frame}                       |{RESET}")
+    print(f"{frame}+--------------------------------+{RESET}")
+    return input(f"{frame}Choose an option: {RESET}")
 
 
 def run_menu(generator: MazeGenerator) -> str:

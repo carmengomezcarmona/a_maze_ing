@@ -51,7 +51,7 @@ a-maze-ing/
 ├── LICENSE.md                    # licencia que permita reutilizar mazegen en otro proyecto
 ├── pyproject.toml                # metadata para construir el paquete mazegen
 ```
-#### === PAQUETE REUTILIZABLE (Persona A) ===
+#### === PAQUETE REUTILIZABLE (gabriel) ===
 ```
 ├── mazegen/                      
 │   ├── __init__.py                # expone MazeGenerator
@@ -63,7 +63,7 @@ a-maze-ing/
 │   ├── solver.py                  # BFS/DFS -> camino más corto (string NESW)
 │   └── py.typed
 ```
-#### === APLICACIÓN (Persona B) ===
+#### === APLICACIÓN (carmen) ===
 ```
 |── app/                          
 │   ├── config_parser.py           # lectura KEY=VALUE, comentarios #, validación

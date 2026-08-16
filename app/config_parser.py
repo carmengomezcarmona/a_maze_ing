@@ -8,7 +8,8 @@ from typing import Optional
 
 from app.errors import ConfigError
 
-_MANDATORY_KEYS = ("WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT")
+_MANDATORY_KEYS = ("WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE",
+                   "PERFECT")
 
 
 @dataclass
