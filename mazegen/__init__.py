@@ -4,7 +4,7 @@ Basic usage:
 
     from mazegen import MazeGenerator
 
-    gen = MazeGenerator(width=10, height=8, entry=(0, 0), exit_=(9, 7),
+    gen = MazeGenerator(width=15, height=10, entry=(0, 0), exit_=(14, 9),
                          perfect=True, seed=42)
     gen.generate()
     print(gen.get_solution())        # e.g. "EESSEESS..."
@@ -14,4 +14,4 @@ Basic usage:
 from mazegen.generator import MazeGenerator
 
 __all__ = ["MazeGenerator"]
-__version__ = "0.1.0"
+__version__ = "0.2.0"
