@@ -55,6 +55,7 @@ def main(argv: list[str]) -> int:
     print(f"Maze written to {config.output_file}")
     print(f"Solution ({len(generator.get_solution())} steps): "
           f"{generator.get_solution()}")
+    print()
     while True:
         choice = run_menu(generator)
         if choice == "4":
@@ -73,6 +74,7 @@ def main(argv: list[str]) -> int:
             print(f"Maze written to {config.output_file}")
             print(f"Solution ({len(generator.get_solution())} steps): "
                   f"{generator.get_solution()}")
+            print()
 
 
 if __name__ == "__main__":

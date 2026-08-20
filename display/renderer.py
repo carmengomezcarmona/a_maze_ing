@@ -133,7 +133,7 @@ def show_menu() -> str:
     frame = PATH_COLOR
     title = ENTRY_COLOR
     print(f"\n{frame}+--------------------------------+{RESET}")
-    print(f"{frame}| {title}       A-Maze-ing        {frame}|{RESET}")
+    print(f"{frame}|{title}{'A-Maze-ing':^32}{frame}|{RESET}")
     print(f"{frame}+--------------------------------+{RESET}")
     option_1 = f"{frame}| {COLORS[0]}1. Regenerate maze"
     option_2 = f"{frame}| {COLORS[1]}2. Show/hide path"
@@ -142,7 +142,7 @@ def show_menu() -> str:
     print(f"{option_1}{frame}             |{RESET}")
     print(f"{option_2}{frame}              |{RESET}")
     print(f"{option_3}{frame}               |{RESET}")
-    print(f"{option_4}{frame}                       |{RESET}")
+    print(f"{option_4}{frame}                        |{RESET}")
     print(f"{frame}+--------------------------------+{RESET}")
     return input(f"{frame}Choose an option: {RESET}")
 
