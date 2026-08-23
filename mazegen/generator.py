@@ -3,20 +3,14 @@
 Current state:
 - Perfect mode (PERFECT=True): classic recursive backtracker -> spanning
   tree, single path between any two cells.
-- Non-perfect / Pac-Man mode (PERFECT=False): the same spanning tree, with
-  extra random walls knocked down to create loops, WITHOUT ever creating a
-  fully-open 3x3 block of cells (corridor-width rule).
+- Non-perfect / Pac-Man mode (PERFECT=False): the same spanning tree, then
+  `_add_loops()` breaks dead-ends first and guarantees at least two
+  independent loops, always respecting the corridor-width rule (never a
+  fully-open 3x3 block of cells).
 - The '42' pattern is carved by simply never visiting the cells that make
   up the digits (see mazegen.pattern42): they keep all 4 walls closed.
-
-What this version does NOT do yet (left as TODO for later iterations):
-- Guarantee the four corners + centre are open, and dead-ends are rare,
-  as required for the Pac-Man mode.
-
-Keeping that out for now lets the whole pipeline (config -> generation ->
-output file -> display) work end to end; the missing rule can be added
-inside `_add_loops()` without changing the public interface used by the
-rest of the project.
+  It is automatically omitted if it would overlap entry/exit or (in
+  Pac-Man mode) any of the four corners / the centre cell.
 """
 
 from __future__ import annotations
@@ -54,6 +48,10 @@ class MazeGenerator:
         perfect: If True, generate a perfect maze (no loops).
         seed: Optional seed for reproducibility.
     """
+
+    # Minimum number of extra walls (= independent loops) required in
+    # Pac-Man mode (IV.4: "at least two independent routes").
+    _MIN_LOOPS = 2
 
     def __init__(
         self,
@@ -93,9 +91,22 @@ class MazeGenerator:
             for x in range(width)
         }
 
+        # Cells that must never be blocked by the '42' pattern: entry/exit
+        # always, plus the four corners and the centre in Pac-Man mode
+        # (IV.4: "the four corners and the centre are open corridors").
+        required_open = {entry, exit_}
+        if not perfect:
+            required_open |= {
+                (0, 0),
+                (width - 1, 0),
+                (0, height - 1),
+                (width - 1, height - 1),
+                (width // 2, height // 2),
+            }
+
         # Cells that make up the "42" pattern: never carved, stay closed.
         self._blocked: set[tuple[int, int]] = get_blocked_cells(
-            width, height, entry, exit_
+            width, height, required_open
         )
 
         self._generated = False
@@ -160,39 +171,109 @@ class MazeGenerator:
         self._walls[(x, y)] |= bit_here
         self._walls[(nx, ny)] |= bit_there
 
-    def _add_loops(self) -> None:
-        """Knock down extra walls to create loops, keeping corridors
-        at most 2 cells wide (never a fully-open 3x3 block).
+    def _neighbour(
+        self, cell: tuple[int, int], direction: str
+    ) -> tuple[int, int]:
+        """Return the coordinates of `cell`'s neighbour in `direction`."""
+        dx, dy, _, _ = _DIRECTIONS[direction]
+        x, y = cell
+        return x + dx, y + dy
 
-        NOTE: minimal placeholder to satisfy "at least 2 independent
-        routes". Corners/centre/dead-end requirements from the subject
-        are not yet enforced here (next iteration).
-        """
+    def _degree(self, cell: tuple[int, int]) -> int:
+        """Return the number of open walls (connections) of `cell`."""
+        walls = self._walls[cell]
+        return sum(
+            1 for _, (_, _, bit_here, _) in _DIRECTIONS.items()
+            if not (walls & bit_here)
+        )
+
+    def _is_dead_end(self, cell: tuple[int, int]) -> bool:
+        """A cell is a dead-end if it has only one connection and is not
+        the entry or the exit (those are naturally allowed to have one)."""
+        if cell in (self.entry, self.exit_):
+            return False
+        return self._degree(cell) == 1
+
+    def _gather_wall_candidates(self) -> list[tuple[tuple[int, int], str]]:
+        """List every currently-closed wall between two non-blocked,
+        in-bounds cells: these are the only walls `_add_loops` may open."""
         candidates: list[tuple[tuple[int, int], str]] = []
         for (x, y), walls in self._walls.items():
             if (x, y) in self._blocked:
                 continue
             for direction, (dx, dy, bit_here, _) in _DIRECTIONS.items():
-                nx, ny = x + dx, y + dy
-                if not self._in_bounds((nx, ny), self.width, self.height):
+                neighbour = (x + dx, y + dy)
+                if not self._in_bounds(neighbour, self.width, self.height):
                     continue
-                if (nx, ny) in self._blocked:
+                if neighbour in self._blocked:
                     continue
                 if walls & bit_here:
                     candidates.append(((x, y), direction))
+        return candidates
 
-        extra_walls = max(2, (self.width * self.height) // 20)
+    def _try_open(self, cell: tuple[int, int], direction: str) -> bool:
+        """Open a wall unless it's already open or it would create a
+        forbidden 3x3 open block.
+
+        Returns:
+            True if the wall was newly opened, False if it was already
+            open or was rejected (grid left unchanged either way).
+        """
+        _, _, bit_here, _ = _DIRECTIONS[direction]
+        if not (self._walls[cell] & bit_here):
+            return False  # already open (seen from the other side before)
+        self._open_wall(cell, direction)
+        if self._has_forbidden_open_block():
+            self._close_wall(cell, direction)
+            return False
+        return True
+
+    def _add_loops(self) -> None:
+        """Turn the spanning tree into a Pac-Man-friendly board.
+
+        Two bounded phases, both respecting the corridor-width rule
+        (never a fully-open 3x3 block):
+
+        1. Dead-end removal: every candidate wall touching a degree-1 cell
+           (other than entry/exit) is tried once, in random order. Opening
+           a wall can only ever raise a cell's degree, so this greedily
+           minimises dead-ends without ever needing to be undone.
+        2. Minimum loop guarantee: if phase 1 didn't open enough walls,
+           extra (non-dead-end) walls are opened until at least
+           `_MIN_LOOPS` have been added. Each extra wall on top of the
+           spanning tree creates one new independent cycle, so >= 2 extra
+           walls gives the ">= 2 independent routes" the subject requires.
+        """
+        candidates = self._gather_wall_candidates()
         self._rng.shuffle(candidates)
 
+        dead_end_candidates = [
+            (cell, direction)
+            for cell, direction in candidates
+            if self._is_dead_end(cell)
+            or self._is_dead_end(self._neighbour(cell, direction))
+        ]
+        other_candidates = [
+            item for item in candidates if item not in dead_end_candidates
+        ]
+
         opened = 0
-        for cell, direction in candidates:
-            if opened >= extra_walls:
+        for cell, direction in dead_end_candidates:
+            if self._try_open(cell, direction):
+                opened += 1
+
+        for cell, direction in other_candidates:
+            if opened >= self._MIN_LOOPS:
                 break
-            self._open_wall(cell, direction)
-            if self._has_forbidden_open_block():
-                self._close_wall(cell, direction)  # revert, try next candidate
-                continue
-            opened += 1
+            if self._try_open(cell, direction):
+                opened += 1
+
+        if opened < self._MIN_LOOPS:
+            print(
+                f"Note: only {opened} extra route(s) could be opened "
+                f"without breaking the corridor-width rule "
+                f"(wanted >= {self._MIN_LOOPS})."
+            )
 
     def _has_forbidden_open_block(self) -> bool:
         """Return True if the grid contains a fully-open 3x3 cell block.

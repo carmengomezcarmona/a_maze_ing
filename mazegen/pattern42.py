@@ -43,17 +43,41 @@ def _build_pattern() -> list[list[bool]]:
 _PATTERN: list[list[bool]] = _build_pattern()
 PATTERN_HEIGHT = len(_PATTERN)
 PATTERN_WIDTH = len(_PATTERN[0])
+# Local column index of the gap between '4' and '2' (always the exact
+# middle of the pattern, since it's built as digit + 1-col gap + digit
+# with two equally-wide digits). This column is open on every row.
+_GAP_COLUMN = PATTERN_WIDTH // 2
 
 
 def get_blocked_cells(
     width: int,
     height: int,
-    entry: tuple[int, int],
-    exit_: tuple[int, int],
+    required_open: set[tuple[int, int]],
 ) -> set[tuple[int, int]]:
     """Return the (x, y) cells that must stay fully closed to draw '42'.
 
-    If the maze is too small, or the pattern would overlap entry/exit, the
+    The pattern is always placed dead-centre in the grid -- it is never
+    shifted to dodge required-open cells. To make that compatible with
+    Pac-Man mode (where the grid's own centre cell must stay open), the
+    horizontal offset is computed as `width // 2 - PATTERN_WIDTH // 2`
+    rather than the more naive `(width - PATTERN_WIDTH) // 2`. Both give
+    a "centered" placement, but only the first one guarantees that the
+    pattern's own gap column (between '4' and '2', open on every row)
+    lands exactly on the grid's centre column for ANY width, odd or
+    even. `(width - PATTERN_WIDTH) // 2` can be off by one cell for even
+    widths, which is what used to make the pattern collide with the
+    required-open centre cell.
+
+    Args:
+        width: Maze width.
+        height: Maze height.
+        required_open: Cells that must NOT be part of the pattern (e.g.
+            entry, exit, and -- in Pac-Man mode -- the four corners and
+            the centre cell).
+
+    If the maze is too small, or the pattern still overlaps a
+    required-open cell despite the centring guarantee above (e.g. entry
+    or exit placed very close to the middle of a small grid), the
     pattern is omitted (as explicitly allowed by the subject) and a note
     is printed on the console.
     """
@@ -64,8 +88,8 @@ def get_blocked_cells(
         )
         return set()
 
-    offset_x = (width - PATTERN_WIDTH) // 2
-    offset_y = (height - PATTERN_HEIGHT) // 2
+    offset_x = width // 2 - PATTERN_WIDTH // 2
+    offset_y = height // 2 - PATTERN_HEIGHT // 2
 
     blocked = {
         (offset_x + x, offset_y + y)
@@ -74,8 +98,11 @@ def get_blocked_cells(
         if is_blocked
     }
 
-    if entry in blocked or exit_ in blocked:
-        print("Note: '42' pattern would overlap entry/exit; omitting it.")
+    if blocked & required_open:
+        print(
+            "Note: '42' pattern would overlap a required-open cell "
+            "(entry/exit/corner/centre); omitting it."
+        )
         return set()
 
     return blocked
