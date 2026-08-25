@@ -83,13 +83,8 @@ class MazeGenerator:
         self.perfect = perfect
         self.seed = seed
         self._rng = random.Random(seed)
-
-        # Every cell starts fully closed (all 4 walls up): bits 1+2+4+8 = 15.
-        self._walls: dict[tuple[int, int], int] = {
-            (x, y): _NORTH | _EAST | _SOUTH | _WEST
-            for y in range(height)
-            for x in range(width)
-        }
+        self._walls: dict[tuple[int, int], int] = {}
+        self._reset_walls()
 
         # Cells that must never be blocked by the '42' pattern: entry/exit
         # always, plus the four corners and the centre in Pac-Man mode
@@ -112,6 +107,14 @@ class MazeGenerator:
         self._generated = False
         self._solution: str = ""
 
+    def _reset_walls(self) -> None:
+        """(Re)initialise every cell to fully closed: bits 1+2+4+8 = 15."""
+        self._walls = {
+            (x, y): _NORTH | _EAST | _SOUTH | _WEST
+            for y in range(self.height)
+            for x in range(self.width)
+        }
+
     @staticmethod
     def _in_bounds(cell: tuple[int, int], width: int, height: int) -> bool:
         """Return True if `cell` lies within a width x height grid."""
@@ -119,7 +122,15 @@ class MazeGenerator:
         return 0 <= x < width and 0 <= y < height
 
     def generate(self) -> None:
-        """Generate the maze in place (fills the internal wall grid)."""
+        """Generate the maze in place (fills the internal wall grid).
+
+        Safe to call more than once on the same instance (e.g. a
+        "regenerate" action in the UI): the grid is reset to fully-closed
+        before carving, and the internal RNG keeps advancing, so each
+        call produces a genuinely different maze rather than carving on
+        top of the previous one.
+        """
+        self._reset_walls()
         self._carve_perfect_maze()
         if not self.perfect:
             self._add_loops()
