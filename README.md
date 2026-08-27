@@ -73,6 +73,10 @@ When `PERFECT=False`, the generator can remove additional walls after the initia
 
 The generator also supports the special `42` pattern. The cells belonging to the pattern are kept fully closed and are not carved during maze generation, allowing the `42` shape to remain visible in the generated maze.
 
+### Why this algorithm
+
+We chose the recursive backtracker because it is simple to implement and extend, while producing long, winding corridors that are easy to read and enjoyable to solve. Unlike Kruskal's and Prim's algorithms, it needs no additional data structures and can easily skip the cells reserved for the "42" pattern or open extra walls when `PERFECT=False`. Its main drawback is that it may create long corridors with few branches, but this was considered acceptable for the project's goals.
+
 ## What part of the code is reusable
 
 The `mazegen` package was designed to be reusable independently from the main application.
@@ -140,6 +144,12 @@ The project was developed using Python 3 and several tools to help with developm
 * The **terminal** was used extensively to run the program, test different configurations and inspect the generated output.
 
 AI-assisted tools were also used during development for explanations, debugging assistance and documentation support. Their suggestions were reviewed and adapted to the project's requirements.
+
+
+## The Project Management
+
+    - The Visual Part (/display  y /app) - *carmgome*
+    - The Motor part (/mazegen) - *gapostig*
 
 ## Resources
 

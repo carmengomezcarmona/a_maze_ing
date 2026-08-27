@@ -1,11 +1,11 @@
 # Default configuration file for A-Maze-ing
 
-WIDTH=20
-HEIGHT=20
-ENTRY=3,2
-EXIT=18, 15
+WIDTH=15
+HEIGHT=15
+ENTRY=0,0
+EXIT=14,14
 OUTPUT_FILE=maze.txt
-PERFECT=True
+PERFECT=False
 SEED=42
 
 # Optional key: fix the random generator to get a reproducible maze.

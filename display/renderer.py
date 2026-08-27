@@ -10,6 +10,7 @@ COLORS = [
     "\033[38;5;129m",  # purple
     "\033[38;5;208m",  # orange
 ]
+PATTERN42_COLOR = "\033[48;5;220m"
 RESET = "\033[0m"
 ENTRY_COLOR = "\033[32m"  # green
 EXIT_COLOR = "\033[31m"   # red
@@ -25,7 +26,6 @@ def draw_row(
     row = color
     for x in range(generator.width):
         walls = generator.get_cell_walls(x, y)
-
         if walls & NORTH:
             row += "+---"
         else:
@@ -40,10 +40,11 @@ def draw_cells(
     path_cells: list[tuple[int, int]] | None = None,
     color: str = "",
 ) -> str:
-    """Draw one row of cells, including entry, exit, path and east walls."""
+    """Draw one row of cells, including entry, exit, path and 42 pattern."""
     row = color + "|"
     entry = generator.get_entry()
     exit_ = generator.get_exit()
+    pattern42 = generator.get_blocked_cells()
     for x in range(generator.width):
         walls = generator.get_cell_walls(x, y)
         if (x, y) == entry:
@@ -51,10 +52,11 @@ def draw_cells(
         elif (x, y) == exit_:
             row += f"{EXIT_COLOR} X {color}"
         elif path_cells and (x, y) in path_cells:
-            row += f"{PATH_COLOR} · {color}"
+            row += f"{PATH_COLOR} ● {color}"
+        elif (x, y) in pattern42:
+            row += f"{PATTERN42_COLOR}   \033[0m{color}"
         else:
             row += "   "
-
         if walls & EAST:
             row += "|"
         else:
@@ -144,6 +146,7 @@ def show_menu() -> str:
     print(f"{option_3}{frame}               |{RESET}")
     print(f"{option_4}{frame}                        |{RESET}")
     print(f"{frame}+--------------------------------+{RESET}")
+    print()
     return input(f"{frame}Choose an option: {RESET}")
 
 

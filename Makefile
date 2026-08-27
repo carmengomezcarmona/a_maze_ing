@@ -1,9 +1,12 @@
 CONFIG ?= config.txt
 
-.PHONY: install run debug clean lint lint-strict
+.PHONY: install run debug clean lint lint-strict test
 
 install:
-	pip install --break-system-packages -q flake8 mypy
+	pip install --break-system-packages -q flake8 mypy pytest
+
+test:
+	python3 -m pytest tests/ -v
 
 run:
 	python3 a_maze_ing.py $(CONFIG)
