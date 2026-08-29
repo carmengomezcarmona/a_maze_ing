@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by carmgome and gapostig*
+*This project has been created as part of the 42 curriculum by carmgome, gapostig*
 
 # A_MAZE_ING
 

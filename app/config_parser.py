@@ -48,7 +48,7 @@ def _read_raw_pairs(path: Path) -> dict[str, str]:
                 f"malformed line {line_number} in {path}: {raw_line!r}"
             )
         key, _, value = line.partition("=")
-        pairs[key.strip()] = value.strip()
+        pairs[key.strip().upper()] = value.strip()
     return pairs
 
 
