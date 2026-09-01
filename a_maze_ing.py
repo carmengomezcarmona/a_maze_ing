@@ -8,14 +8,13 @@ Usage:
 import sys
 
 # imports from app folder
-from app.config_parser import parse_config
-from app.errors import ConfigError
-from app.output_writer import write_maze
-from display.renderer import run_menu
+from app import parse_config, ConfigError, write_maze
+
+# imports from display folder
+from display import run_menu
 
 # imports from mazegen folder
-from mazegen import MazeGenerator
-from mazegen.exceptions import MazeGenerationError
+from mazegen import MazeGenerator, MazeGenerationError
 
 
 def main(argv: list[str]) -> int:
@@ -56,25 +55,9 @@ def main(argv: list[str]) -> int:
     print(f"Solution ({len(generator.get_solution())} steps): "
           f"{generator.get_solution()}")
     print()
-    while True:
-        choice = run_menu(generator)
-        if choice == "4":
-            return 0
-        if choice == "1":
-            generator = MazeGenerator(
-                width=config.width,
-                height=config.height,
-                entry=config.entry,
-                exit_=config.exit_,
-                perfect=config.perfect,
-                seed=config.seed,
-            )
-            generator.generate()
-            write_maze(config.output_file, generator)
-            print(f"Maze written to {config.output_file}")
-            print(f"Solution ({len(generator.get_solution())} steps): "
-                  f"{generator.get_solution()}")
-            print()
+
+    run_menu(generator)
+    return 0
 
 
 if __name__ == "__main__":

@@ -25,7 +25,7 @@ class MazeConfig:
     seed: Optional[int] = None
 
 
-def _read_raw_pairs(path: Path) -> dict[str, str]:
+def read_raw_pairs(path: Path) -> dict[str, str]:
     """Read the file and return the raw KEY -> VALUE strings.
 
     Raises:
@@ -52,7 +52,7 @@ def _read_raw_pairs(path: Path) -> dict[str, str]:
     return pairs
 
 
-def _parse_coordinates(raw: str, key: str) -> tuple[int, int]:
+def parse_coordinates(raw: str, key: str) -> tuple[int, int]:
     """Parse a 'x,y' string into a tuple of ints."""
     parts = raw.split(",")
     if len(parts) != 2:
@@ -64,7 +64,7 @@ def _parse_coordinates(raw: str, key: str) -> tuple[int, int]:
     return x, y
 
 
-def _parse_bool(raw: str, key: str) -> bool:
+def parse_bool(raw: str, key: str) -> bool:
     """Parse a 'True'/'False' string into a bool."""
     normalised = raw.strip().lower()
     if normalised in ("true", "1", "yes"):
@@ -88,7 +88,7 @@ def parse_config(path: str) -> MazeConfig:
             is missing or invalid.
     """
     file_path = Path(path)
-    pairs = _read_raw_pairs(file_path)
+    pairs = read_raw_pairs(file_path)
 
     missing = [key for key in _MANDATORY_KEYS if key not in pairs]
     if missing:
@@ -102,9 +102,9 @@ def parse_config(path: str) -> MazeConfig:
     if width <= 0 or height <= 0:
         raise ConfigError("WIDTH and HEIGHT must be strictly positive")
 
-    entry = _parse_coordinates(pairs["ENTRY"], "ENTRY")
-    exit_ = _parse_coordinates(pairs["EXIT"], "EXIT")
-    perfect = _parse_bool(pairs["PERFECT"], "PERFECT")
+    entry = parse_coordinates(pairs["ENTRY"], "ENTRY")
+    exit_ = parse_coordinates(pairs["EXIT"], "EXIT")
+    perfect = parse_bool(pairs["PERFECT"], "PERFECT")
     output_file = pairs["OUTPUT_FILE"]
 
     seed: Optional[int] = None

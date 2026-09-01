@@ -1,16 +1,4 @@
 """Core maze generation logic.
-
-Current state:
-- Perfect mode (PERFECT=True): classic recursive backtracker -> spanning
-  tree, single path between any two cells.
-- Non-perfect / Pac-Man mode (PERFECT=False): the same spanning tree, then
-  `_add_loops()` breaks dead-ends first and guarantees at least two
-  independent loops, always respecting the corridor-width rule (never a
-  fully-open 3x3 block of cells).
-- The '42' pattern is carved by simply never visiting the cells that make
-  up the digits (see mazegen.pattern42): they keep all 4 walls closed.
-  It is automatically omitted if it would overlap entry/exit or (in
-  Pac-Man mode) any of the four corners / the centre cell.
 """
 
 from __future__ import annotations
@@ -18,8 +6,8 @@ from __future__ import annotations
 import random
 from typing import Optional
 
-from mazegen.exceptions import MazeGenerationError
-from mazegen.pattern42 import get_blocked_cells
+from .exceptions import MazeGenerationError
+from .pattern42 import get_blocked_cells
 
 # Bit values for each direction, and the bit used by the neighbour on the
 # opposite side of the same wall (walls are shared between two cells).

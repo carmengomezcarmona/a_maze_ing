@@ -150,7 +150,7 @@ def show_menu() -> str:
     return input(f"{frame}Choose an option: {RESET}")
 
 
-def run_menu(generator: MazeGenerator) -> str:
+def run_menu(generator: MazeGenerator) -> None:
     """Run the interactive menu until the user chooses to exit."""
     show_path = False
     color_index = 0
@@ -165,6 +165,6 @@ def run_menu(generator: MazeGenerator) -> str:
         elif choice == "3":
             color_index = (color_index + 1) % len(COLORS)
         elif choice == "4":
-            return "4"
+            return
         else:
             print("Invalid option")

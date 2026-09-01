@@ -22,8 +22,8 @@ classifiers = [
     "Typing :: Typed",
 ]
 
-[project.urls]
-Repository = "https://github.com/REPLACE-ME/a-maze-ing"
+# [project.urls]
+# Repository = "https://github.com/REPLACE-ME/a-maze-ing"
 
 # Only the `mazegen` package is shipped: `app`, `display`, `tests` and
 # `a_maze_ing.py` are the A-Maze-ing *application*, not the reusable
