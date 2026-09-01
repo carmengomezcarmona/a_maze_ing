@@ -6,7 +6,6 @@ ENTRY=0,0
 EXIT=14,14
 OUTPUT_FILE=maze.txt
 PERFECT=False
-SEED=42
 
 # Optional key: fix the random generator to get a reproducible maze.
 # SEED=42
