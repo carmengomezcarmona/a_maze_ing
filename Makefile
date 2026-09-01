@@ -5,9 +5,6 @@ CONFIG ?= config.txt
 install:
 	pip install --break-system-packages -q flake8 mypy pytest
 
-test:
-	python3 -m pytest tests/ -v
-
 run:
 	python3 a_maze_ing.py $(CONFIG)
 
